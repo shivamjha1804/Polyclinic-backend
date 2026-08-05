@@ -4,12 +4,19 @@ from app.deps import require_role
 from app.db.client import supabase_admin
 from app.services.storage import create_audio_upload_url
 from app.services.asr import transcribe
+from app.agents.scribe_graph import graph as scribe_graph
+from langgraph.types import Command
 
 router = APIRouter(prefix="/consultations", tags=["consultations"])
 
 class ConsultationCreate(BaseModel):
     appointment_id: str
     patient_id: str
+
+class ReviewDecision(BaseModel):
+    decision: str
+    feedback: str | None = None
+    edited_note: dict | None = None
 
 @router.post("")
 async def create_consultation(payload: ConsultationCreate, user: dict = Depends(require_role("doctor"))):
@@ -59,9 +66,50 @@ async def transcribe_consultation(consultation_id: str, user: dict = Depends(req
     signed = supabase_admin.storage.from_("audio").create_signed_url(consultation["audio_path"], 60)
     transcript = transcribe(signed["signedURL"])
 
+    config = {"configurable" : {"thread_id" : consultation_id}}
+    result = scribe_graph.invoke({"transcript" : transcript, "revision_count" : 0}, config= config)
+
     supabase_admin.table("consultations").update({
         "transcript" : transcript,
-        "status" : "transcribed"
+        "soap_note" : result["soap_draft"],
+        "validation_flags" : result["validation_flags"],
+        "status" : "drafted"
     }).eq("id", consultation_id).execute()
 
-    return {"transcript" : transcript}
+    return {"soap_draft" : result["soap_draft"], "validation_flags" : result["validation_flags"]}
+
+@router.post("/{consultation_id}/review")
+async def review_consultation(consultation_id: str, payload: ReviewDecision, user: dict = Depends(require_role("doctor"))):
+    consultation = (
+        supabase_admin.table("consultations")
+        .select("*").eq("id", consultation_id).single().execute()
+    ).data
+
+    if consultation is None:
+        raise HTTPException(404, "Consultation not found")
+    if consultation["doctor_id"] != user["id"]:
+        raise HTTPException(403, "You are not the doctor for this consultation")
+
+    resume_payload = {"decision" : payload.decision}
+    if payload.feedback is not None:
+        resume_payload["feedback"] = payload.feedback
+    if payload.edited_note is not None:
+        resume_payload["edited_note"] = payload.edited_note
+
+    config = {"configurable" : {"thread_id" : consultation_id}}
+    result = scribe_graph.invoke(Command(resume=resume_payload), config=config)
+
+    finished = "__interrupt__" not in result
+
+    supabase_admin.table("consultations").update({
+        "soap_note" : result["soap_draft"],
+        "validation_flags" : result["validation_flags"],
+        "revision_count" : result["revision_count"],
+        "status": "in_review" if finished else "drafted",
+    }).eq("id", consultation_id).execute()
+
+    return{
+        "finished" : finished,
+        "soap_draft" : result["soap_draft"],
+        "validation_flags" : result["validation_flags"]
+    }
