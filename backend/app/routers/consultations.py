@@ -6,6 +6,8 @@ from app.services.storage import create_audio_upload_url
 from app.services.asr import transcribe
 from app.agents.scribe_graph import graph as scribe_graph
 from langgraph.types import Command
+from datetime import datetime, timezone
+from app.services.audit import log_action
 
 router = APIRouter(prefix="/consultations", tags=["consultations"])
 
@@ -113,3 +115,42 @@ async def review_consultation(consultation_id: str, payload: ReviewDecision, use
         "soap_draft" : result["soap_draft"],
         "validation_flags" : result["validation_flags"]
     }
+
+
+@router.post("/{consultation_id}/sign")
+async def sign_consultation(consultation_id: str, user: dict = Depends(require_role("doctor"))):
+    consultation = (
+        supabase_admin.table("consultations")
+        .select("*").eq("id", consultation_id).single().execute()
+    ).data
+
+    if consultation is None:
+        raise HTTPException(404, "Consultation not found")
+
+    if consultation["doctor_id"] != user["id"]:
+        raise HTTPException(403, "You are not the doctor for this consultation")
+
+    if consultation["signed_at"] is not None:
+        raise HTTPException(400, "Consultation already signed")
+
+    if consultation["soap_note"] is None:
+        raise HTTPException(400, "No SOAP note to sign yet")
+
+    if consultation["audio_path"]:
+        supabase_admin.storage.from_("audio").remove([consultation["audio_path"]])
+
+    supabase_admin.table("consultations").update({
+        "status": "signed",
+        "signed_at": datetime.now(timezone.utc).isoformat(),
+        "audio_path": None,
+    }).eq("id", consultation_id).execute()
+
+    log_action(
+        actor_id= user["id"],
+        actor_role=user["role"],
+        action="note_signed",
+        resource_type="consultation",
+        resource_id=consultation_id
+    )
+
+    return {"status": "signed"}
