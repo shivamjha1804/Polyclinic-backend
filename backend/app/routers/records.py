@@ -7,6 +7,10 @@ from app.services.records import extract_text
 from app.services.embeddings import chunk_document, embed_documents
 from app.services.llm import complete_text
 from app.config import settings
+from fastapi.responses import StreamingResponse
+from app.services.retrieval import hybrid_search
+from app.services.llm import stream_complete
+from app.services.audit import log_action
 
 router = APIRouter(prefix="/records", tags=["records"])
 
@@ -20,8 +24,17 @@ class RecordCreate(BaseModel):
 class RecordIngest(BaseModel):
     record_id: str
 
+class AskQuestion(BaseModel):
+    patient_id: str
+    question: str
+
 
 SUMMARY_PROMPT = "You are summarizing a medical report in 2-3 sentences for a doctor's quick reference."
+
+RAG_SYSTEM_PROMPT = """You are answering a question about a patient's medical history using only the provided excerpts.
+Cite which excerpt(s) you used by referencing their section name in brackets, e.g. [Medications].
+If the excerpts don't contain the answer, say you cannot answer from the available records — do not guess."""
+
 
 @router.post("/upload-url")
 async def get_record_upload_url(payload: RecordCreate, user: dict = Depends(current_user)):
@@ -115,3 +128,34 @@ async def get_record(record_id : str, user : dict = Depends(current_user)):
         view_url = signed["signedURL"]
 
     return {**record, "view_url" : view_url}
+
+
+@router.post("/ask")
+async def ask_question(payload: AskQuestion, user: dict = Depends(current_user)):
+
+    if user["role"] == "patient" and user["id"] != payload.patient_id:
+        raise HTTPException(403, "You can only ask about your own records")
+
+    chunks = hybrid_search(payload.question, payload.patient_id)
+
+    if not chunks:
+        raise HTTPException(404, "No records found for this patient")
+
+    context = "\n\n".join(f"[{c['section']}] {c['content']}" for c in chunks)
+    user_message = f"Excerpts:\n{context}\n\nQuestion: {payload.question}"
+
+    log_action(
+        actor_id=user["id"],
+        actor_role=user["role"],
+        action="rag_query",
+        resource_type="patient",
+        resource_id=payload.patient_id,
+        metadata={"question": payload.question, "chunk_ids" : [c["id"] for c in chunks]},
+    )
+
+    def event_stream():
+        for token in stream_complete(RAG_SYSTEM_PROMPT, user_message, model=settings.MODEL_PRIMARY):
+            yield f"data: {token}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream")

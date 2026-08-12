@@ -33,3 +33,23 @@ def complete_text(system: str, user_message: str, model: str, max_tokens: int = 
     )
     return respone.choices[0].message.content
 
+def stream_complete(system: str, user_message: str, model: str, max_tokens: int = 100):
+    stream = client.chat.completions.create(
+        model = model,
+        max_tokens= max_tokens,
+        messages=[
+            {
+                "role" : "system",
+                "content" : system
+            },
+            {
+                "role" : "user",
+                "content" : user_message
+            }
+        ],
+        stream=True
+    )
+    for chunk in stream:
+        delta = chunk.choices[0].delta.content
+        if delta:
+            yield delta
