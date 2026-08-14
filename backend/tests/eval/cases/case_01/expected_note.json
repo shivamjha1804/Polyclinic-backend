@@ -1,0 +1,11 @@
+{
+  "subjective": "Patient reports sore throat and fever since yesterday, painful swallowing, mild body aches. No cough or runny nose.",
+  "objective": "Throat erythematous with white patches on tonsils. Temperature 100.9 F.",
+  "assessment": "Findings consistent with streptococcal pharyngitis (strep throat).",
+  "plan": "Start amoxicillin. Advise fluids and rest. Return if not improved in 3 days or if symptoms worsen.",
+  "diagnosis": ["Strep throat"],
+  "medications": [
+    {"name": "Amoxicillin", "dosage": "500mg", "frequency": "twice a day", "duration": "10 days"}
+  ],
+  "follow_up": 3
+}

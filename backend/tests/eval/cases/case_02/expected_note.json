@@ -1,0 +1,12 @@
+{
+  "subjective": "Patient reports burning chest sensation after eating for the past couple of weeks, increased thirst, increased urination, unintentional weight loss, and blurry vision.",
+  "objective": "Finger-stick blood glucose 210 mg/dL.",
+  "assessment": "Presentation consistent with type 2 diabetes, pending confirmatory fasting glucose and A1C. Chest burning consistent with GERD.",
+  "plan": "Order fasting glucose and A1C. Start metformin and omeprazole. Follow up in 2 weeks to review labs and adjust treatment.",
+  "diagnosis": ["Type 2 diabetes", "GERD"],
+  "medications": [
+    {"name": "Metformin", "dosage": "500mg", "frequency": "once daily", "duration": "ongoing"},
+    {"name": "Omeprazole", "dosage": "20mg", "frequency": "once daily", "duration": "ongoing"}
+  ],
+  "follow_up": 14
+}

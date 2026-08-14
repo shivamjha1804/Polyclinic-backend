@@ -1,0 +1,9 @@
+{
+  "symptoms": ["chest burning after eating", "excessive thirst", "excessive urination", "weight loss", "blurry vision"],
+  "diagnoses": ["Type 2 diabetes", "GERD"],
+  "medications": [
+    {"name": "Metformin", "dosage": "500mg"},
+    {"name": "Omeprazole", "dosage": "20mg"}
+  ],
+  "follow_up_days": 14
+}

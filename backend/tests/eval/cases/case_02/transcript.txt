@@ -1,0 +1,10 @@
+SPEAKER A: What's going on today?
+SPEAKER B: I've had this burning feeling in my chest after eating for the past couple weeks, and I've also noticed I'm more thirsty than usual and going to the bathroom a lot more.
+SPEAKER A: Any weight loss? Blurry vision?
+SPEAKER B: Actually yes, I've lost a few pounds without trying, and my vision has been a bit blurry lately.
+SPEAKER A: Okay. Let's check your blood sugar right now with a finger stick. That reads 210, which is high. Given the excessive thirst, urination, blurry vision and weight loss, this looks like it could be type 2 diabetes. We'll need to confirm with a fasting glucose and an A1C test.
+SPEAKER B: Okay. What about the chest burning?
+SPEAKER A: That sounds like acid reflux, or GERD. It's actually pretty common alongside the other symptoms. I'm going to start you on metformin, 500 milligrams once daily, for the blood sugar, and omeprazole, 20 milligrams once daily, for the reflux.
+SPEAKER B: Do I take those together?
+SPEAKER A: Metformin with food, omeprazole before breakfast. I want to see you back in 2 weeks once we have the lab results, and we'll adjust from there.
+SPEAKER B: Okay, thank you.
