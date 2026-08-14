@@ -1,0 +1,7 @@
+[
+  {"question": "What symptoms does the patient have?", "expected_section": "Chief Complaint"},
+  {"question": "What medication was prescribed?", "expected_section": "Medications"},
+  {"question": "What is the diagnosis?", "expected_section": "Assessment"},
+  {"question": "How long should the antibiotic be taken?", "expected_section": "Medications"},
+  {"question": "Why does the patient have a fever?", "expected_section": "Chief Complaint"}
+]

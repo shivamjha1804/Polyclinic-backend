@@ -1,0 +1,8 @@
+{
+  "symptoms": ["sore throat", "fever", "painful swallowing", "body aches"],
+  "diagnoses": ["Strep throat"],
+  "medications": [
+    {"name": "Amoxicillin", "dosage": "500mg"}
+  ],
+  "follow_up_days": 3
+}

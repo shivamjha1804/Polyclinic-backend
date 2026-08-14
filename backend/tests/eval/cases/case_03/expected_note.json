@@ -1,0 +1,9 @@
+{
+  "subjective": "Patient twisted ankle playing basketball two days ago. Reports swelling and pain with weight-bearing, localized to the lateral ankle.",
+  "objective": "Swelling and bruising over the lateral ankle. Full range of motion without bony tenderness. Able to bear weight and ambulate.",
+  "assessment": "Mild lateral ankle sprain. Low suspicion for fracture; X-ray not indicated at this time.",
+  "plan": "RICE protocol (rest, ice, compression, elevation). Over-the-counter ibuprofen as needed for pain. Return in 1 week if not improving, or sooner if worsening, for possible X-ray.",
+  "diagnosis": ["Ankle sprain"],
+  "medications": [],
+  "follow_up": 7
+}

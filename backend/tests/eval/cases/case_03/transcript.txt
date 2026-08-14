@@ -1,0 +1,10 @@
+SPEAKER A: How can I help you today?
+SPEAKER B: I twisted my ankle playing basketball two days ago. It's swollen and hurts when I walk on it.
+SPEAKER A: Can you point to where it hurts most?
+SPEAKER B: Right on the outside of my ankle.
+SPEAKER A: Let's take a look. There's some swelling and bruising on the lateral side, but I can move it through its range of motion without feeling any bone tenderness, and you were able to walk into the room, so I don't think we need an X-ray right now.
+SPEAKER B: That's a relief.
+SPEAKER A: This looks like a mild ankle sprain. No medication needed for now, just rest, ice it for 20 minutes a few times a day, compression with an ace bandage, and keep it elevated when you can. Over-the-counter ibuprofen is fine if you need it for pain, but I'm not prescribing anything.
+SPEAKER B: How long until it feels better?
+SPEAKER A: Usually a week or two. If it's not improving in a week, or if it gets worse, come back and we'll get an X-ray to be safe.
+SPEAKER B: Okay, thank you.

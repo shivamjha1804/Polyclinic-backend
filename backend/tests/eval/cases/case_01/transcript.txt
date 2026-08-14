@@ -1,0 +1,10 @@
+SPEAKER A: Good morning, what brings you in today?
+SPEAKER B: I've had this sore throat and a bit of a fever since yesterday. It hurts to swallow.
+SPEAKER A: Any cough, runny nose, or body aches?
+SPEAKER B: No cough, but I do feel a little achy. No runny nose.
+SPEAKER A: Let me take a look. Your throat looks red and there's some white patches on your tonsils. Your temperature is 100.9 Fahrenheit.
+SPEAKER B: Is it strep?
+SPEAKER A: It looks consistent with strep throat given the white patches and fever. I'm going to prescribe you amoxicillin, 500 milligrams, twice a day for 10 days. Make sure you finish the whole course even if you feel better after a few days.
+SPEAKER B: Okay, will do.
+SPEAKER A: Drink plenty of fluids and rest. If you're not feeling better in 3 days, or if it gets worse, come back and see me.
+SPEAKER B: Sounds good, thank you.
