@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from app.deps import require_role
-from app.routers import consultations, records
+from app.routers import consultations, records, analytics, internal
 
 app = FastAPI()
 
@@ -14,3 +14,5 @@ async def doctor_only(user: dict = Depends(require_role("doctor", "owner"))):
 
 app.include_router(consultations.router)
 app.include_router(records.router)
+app.include_router(analytics.router)
+app.include_router(internal.router)

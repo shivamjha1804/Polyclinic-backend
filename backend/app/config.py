@@ -22,4 +22,6 @@ class Settings(BaseSettings):
 
     ENV: str = "dev"
 
+    INTERNAL_TOKEN: str
+
 settings = Settings()
