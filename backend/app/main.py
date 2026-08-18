@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from app.deps import require_role
-from app.routers import consultations, records, analytics, internal
+from app.routers import consultations, records, analytics, internal, labs
 
 app = FastAPI()
 
@@ -16,3 +16,4 @@ app.include_router(consultations.router)
 app.include_router(records.router)
 app.include_router(analytics.router)
 app.include_router(internal.router)
+app.include_router(labs.router)
