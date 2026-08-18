@@ -29,3 +29,26 @@ def require_role(*roles: str):
             raise HTTPException(403, "Insufficient role")
         return user
     return _check
+
+
+def require_permission(resource: str, action: str):
+    """Dynamic RBAC check: does this user's role have (resource, action)?
+
+    'owner' is the superadmin and bypasses this check entirely -- it never
+    needs explicit role_permissions rows.
+    """
+    async def _check(user: dict = Depends(current_user)) -> dict:
+        if user["role"] == "owner":
+            return user
+
+        result = supabase_admin.rpc("role_has_permission", {
+            "role_name": user["role"],
+            "res": resource,
+            "act": action,
+        }).execute()
+
+        if not result.data:
+            raise HTTPException(403, "Insufficient permission")
+
+        return user
+    return _check
