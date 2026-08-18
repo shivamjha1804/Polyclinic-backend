@@ -23,5 +23,6 @@ class Settings(BaseSettings):
     ENV: str = "dev"
 
     INTERNAL_TOKEN: str
+    ANALYTICS_DB_URL: str
 
 settings = Settings()
