@@ -123,3 +123,47 @@ async def update_my_schedule(payload: ScheduleUpdate, user: dict = Depends(curre
         .execute()
     )
     return result.data[0]
+
+@router.post("/hold")
+async def hold_appointment(payload: AppointmentCreate, user: dict = Depends(current_user)):
+    if user["role"] != "patient":
+        raise HTTPException(403, "Only patients can hold appointments")
+
+    doctor = (
+        supabase_admin.table("profiles")
+        .select("slot_duration_minutes")
+        .eq("id", payload.doctor_id)
+        .single()
+        .execute()
+    ).data
+
+    if doctor is None:
+        raise HTTPException(404, "Doctor not found")
+
+    slot_minutes = doctor["slot_duration_minutes"] or 30
+    starts_at = datetime.fromisoformat(payload.starts_at)
+    ends_at = starts_at + timedelta(minutes=slot_minutes)
+
+    conflict = (
+        supabase_admin.table("appointments")
+        .select("id")
+        .eq("doctor_id", payload.doctor_id)
+        .eq("starts_at", starts_at.isoformat())
+        .in_("status", ["booked", "pending_payment"])
+        .execute()
+    ).data
+
+    if conflict:
+        raise HTTPException(409, "This slot was just taken")
+
+    result = supabase_admin.table("appointments").insert({
+        "patient_id": user["id"],
+        "doctor_id": payload.doctor_id,
+        "starts_at": starts_at.isoformat(),
+        "ends_at": ends_at.isoformat(),
+        "status": "pending_payment",
+        "hold_expires_at": (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat(),
+        "reason": payload.reason,
+    }).execute()
+
+    return result.data[0]

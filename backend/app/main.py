@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import consultations, records, analytics, internal, labs, admin, dashboard, appointments, doctors
+from app.routers import consultations, records, analytics, internal, labs, admin, dashboard, appointments, doctors, intake
 
 app = FastAPI()
 
@@ -16,3 +16,4 @@ app.include_router(admin.router)
 app.include_router(dashboard.router)
 app.include_router(appointments.router)
 app.include_router(doctors.router)
+app.include_router(intake.router)
