@@ -25,4 +25,9 @@ class Settings(BaseSettings):
     INTERNAL_TOKEN: str
     ANALYTICS_DB_URL: str
 
+    RAZORPAY_KEY_ID: str
+    RAZORPAY_KEY_SECRET: str
+    RAZORPAY_WEBHOOK_SECRET: str
+    RESEND_API_KEY: str
+
 settings = Settings()

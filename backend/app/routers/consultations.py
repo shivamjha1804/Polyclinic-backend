@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from app.deps import require_role
+from app.deps import require_permission
 from app.db.client import supabase_admin
 from app.services.storage import create_audio_upload_url
 from app.services.asr import transcribe
@@ -21,7 +21,7 @@ class ReviewDecision(BaseModel):
     edited_note: dict | None = None
 
 @router.post("")
-async def create_consultation(payload: ConsultationCreate, user: dict = Depends(require_role("doctor"))):
+async def create_consultation(payload: ConsultationCreate, user: dict = Depends(require_permission("consultations", "create"))):
     result = supabase_admin.table("consultations").insert({
         "appointment_id" : payload.appointment_id,
         "patient_id" : payload.patient_id,
@@ -30,7 +30,7 @@ async def create_consultation(payload: ConsultationCreate, user: dict = Depends(
     return result.data[0]
 
 @router.post("/{consultation_id}/audio-url")
-async def get_audio_upload_url(consultation_id: str, user: dict = Depends(require_role("doctor"))):
+async def get_audio_upload_url(consultation_id: str, user: dict = Depends(require_permission("consultations", "edit"))):
     consultation = (
         supabase_admin.table("consultations")
         .select("*").eq("id", consultation_id).single().execute()
@@ -47,7 +47,7 @@ async def get_audio_upload_url(consultation_id: str, user: dict = Depends(requir
     return result
 
 @router.post("/{consultation_id}/transcribe")
-async def transcribe_consultation(consultation_id: str, user: dict = Depends(require_role("doctor"))):
+async def transcribe_consultation(consultation_id: str, user: dict = Depends(require_permission("consultations", "edit"))):
     consultation = (
         supabase_admin.table("consultations")
         .select("*").eq("id", consultation_id).single().execute()
@@ -81,7 +81,7 @@ async def transcribe_consultation(consultation_id: str, user: dict = Depends(req
     return {"soap_draft" : result["soap_draft"], "validation_flags" : result["validation_flags"]}
 
 @router.post("/{consultation_id}/review")
-async def review_consultation(consultation_id: str, payload: ReviewDecision, user: dict = Depends(require_role("doctor"))):
+async def review_consultation(consultation_id: str, payload: ReviewDecision, user: dict = Depends(require_permission("consultations", "edit"))):
     consultation = (
         supabase_admin.table("consultations")
         .select("*").eq("id", consultation_id).single().execute()
@@ -118,7 +118,7 @@ async def review_consultation(consultation_id: str, payload: ReviewDecision, use
 
 
 @router.post("/{consultation_id}/sign")
-async def sign_consultation(consultation_id: str, user: dict = Depends(require_role("doctor"))):
+async def sign_consultation(consultation_id: str, user: dict = Depends(require_permission("consultations", "edit"))):
     consultation = (
         supabase_admin.table("consultations")
         .select("*").eq("id", consultation_id).single().execute()

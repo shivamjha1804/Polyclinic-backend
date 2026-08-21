@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from app.deps import require_role
+from app.deps import require_permission
 from app.db.client import supabase_admin
 from app.agents.triage import triage_severity, generate_llm_context
+from app.services.realtime import manager
 
 router = APIRouter(prefix="/labs", tags=["labs"])
 
@@ -15,7 +16,7 @@ class LabResultCreate(BaseModel):
     ref_high: float
 
 @router.post("")
-async def create_lab_result(payload: LabResultCreate, user: dict = Depends(require_role("doctor"))):
+async def create_lab_result(payload: LabResultCreate, user: dict = Depends(require_permission("labs", "create"))):
     severity = triage_severity(payload.analyte, payload.value, payload.ref_low, payload.ref_high)
     llm_context = generate_llm_context(payload.patient_id, payload.analyte, payload.value, payload.unit)
 
@@ -31,10 +32,22 @@ async def create_lab_result(payload: LabResultCreate, user: dict = Depends(requi
         "llm_context": llm_context
     }).execute()
 
-    return result.data[0]
+    row = result.data[0]
+
+    if severity == "critical":
+        await manager.notify(row["ordering_doc"], {
+            "type": "critical_lab",
+            "lab_result_id": row["id"],
+            "patient_id": row["patient_id"],
+            "analyte": row["analyte"],
+            "value": row["value"],
+            "unit": row["unit"],
+        })
+
+    return row
 
 @router.get("/queue")
-async def labs_queue(user: dict = Depends(require_role("doctor"))):
+async def labs_queue(user: dict = Depends(require_permission("labs", "view"))):
     result = (
         supabase_admin.table("lab_results")
         .select("*")
@@ -49,7 +62,7 @@ async def labs_queue(user: dict = Depends(require_role("doctor"))):
     return rows
 
 @router.post("/{lab_result_id}/acknowledge")
-async def acknowledge_lab_result(lab_result_id: str, user: dict = Depends(require_role("doctor"))):
+async def acknowledge_lab_result(lab_result_id: str, user: dict = Depends(require_permission("labs", "edit"))):
     from datetime import datetime, timezone
 
     result = (
