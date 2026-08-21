@@ -7,6 +7,7 @@ from app.deps import current_user
 from app.db.client import supabase_admin
 from app.config import settings
 from app.services.realtime import manager
+from app.services.email import send_email
 
 router = APIRouter(prefix="/payments", tags=["payments"])
 
@@ -105,5 +106,16 @@ async def verify_payment(payload: VerifyPayment, user: dict = Depends(current_us
         "appointment_id": payment_row["appointment_id"],
         "amount": payment_row["amount"],
     })
+
+    patient_email = supabase_admin.auth.admin.get_user_by_id(user["id"]).user.email
+    send_email(
+        to=patient_email,
+        subject="Booking confirmed",
+        html=(
+            f"<p>Your appointment is confirmed.</p>"
+            f"<p>Amount paid: &#8377;{payment_row['amount']}</p>"
+            f"<p>Payment ID: {payload.razorpay_payment_id}</p>"
+        ),
+    )
 
     return {"status": "paid"}
