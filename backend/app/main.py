@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import consultations, records, analytics, internal, labs, admin, dashboard, appointments, doctors, intake, payments
+from app.routers import consultations, records, analytics, internal, labs, admin, dashboard, appointments, doctors, intake, payments, ws
 
 app = FastAPI()
 
@@ -29,3 +29,4 @@ app.include_router(appointments.router)
 app.include_router(doctors.router)
 app.include_router(intake.router)
 app.include_router(payments.router)
+app.include_router(ws.router)

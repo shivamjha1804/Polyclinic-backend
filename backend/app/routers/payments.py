@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from app.deps import current_user
 from app.db.client import supabase_admin
 from app.config import settings
+from app.services.realtime import manager
 
 router = APIRouter(prefix="/payments", tags=["payments"])
 
@@ -98,5 +99,11 @@ async def verify_payment(payload: VerifyPayment, user: dict = Depends(current_us
         "status": "booked",
         "hold_expires_at": None,
     }).eq("id", payment_row["appointment_id"]).execute()
+
+    await manager.notify(user["id"], {
+        "type": "payment_confirmed",
+        "appointment_id": payment_row["appointment_id"],
+        "amount": payment_row["amount"],
+    })
 
     return {"status": "paid"}
