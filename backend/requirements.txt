@@ -74,6 +74,7 @@ pytest==9.1.1
 pytest-asyncio==1.4.0
 python-dotenv==1.2.2
 PyYAML==6.0.3
+razorpay==2.0.1
 realtime==2.31.0
 requests==2.34.2
 requests-toolbelt==1.0.0
